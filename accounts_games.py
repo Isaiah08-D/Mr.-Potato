@@ -8,6 +8,16 @@ import requests
 from json import loads
 
 
+def add_usage(ctx: Context):
+	if str(ctx.author) in db:
+		db[str(ctx.author)]['usage'] += 1
+	else:
+			db[str(ctx.author)] = {'usage': 1, 'points': 0, 'servers': [str(ctx.guild)]}
+
+	if str(ctx.guild) not in db[str(ctx.author)]['servers']:
+			db[str(ctx.author)]['servers'].append(str(ctx.guild))
+
+
 class FunCommands(commands.Cog):
 	"""Fun commands, including API stuff."""
 
@@ -19,13 +29,7 @@ class FunCommands(commands.Cog):
 	async def bored(self, ctx: Context):
 		"""Returns something to do."""
 
-		if str(ctx.author) in db:
-			db[str(ctx.author)]['usage'] += 1
-		else:
-			db[str(ctx.author)] = {'usage': 1, 'points': 0, 'servers': [str(ctx.guild)]}
-
-		if str(ctx.guild) not in db[str(ctx.author)]['servers']:
-			db[str(ctx.author)]['servers'].append(str(ctx.guild))
+		add_usage(ctx)
 		
 
 		message = await ctx.send("One moment..."
@@ -45,13 +49,7 @@ class FunCommands(commands.Cog):
 
 
 		
-		if str(ctx.author) in db:
-			db[str(ctx.author)]['usage'] += 1
-		else:
-			db[str(ctx.author)] = {'usage': 1, 'points': 0, 'servers': [str(ctx.guild)]}
-
-		if str(ctx.guild) not in db[str(ctx.author)]['servers']:
-			db[str(ctx.author)]['servers'].append(str(ctx.guild))
+		add_usage(ctx)
 
 
 
@@ -107,7 +105,7 @@ class Accounts(commands.Cog):
 		embed.set_author(
 			name="Mr. Potato", 	
 			icon_url="https://yt3.ggpht.com/ytc/AKedOLSxFo9hO0XcZwSo_2LVR8xqK3KJbmY1fIMW-TF8=s900-c-k-c0x00ffffff-no-rj"
-		)
+		)		
 
 		servers = ''
 		for server in user_info['servers']: servers += server + ', '
@@ -117,6 +115,7 @@ class Accounts(commands.Cog):
 		embed.add_field(name="Servers", value=servers[:-2], inline=True)
 
 		await ctx.send(embed=embed)
+
 
 def setup(bot: commands.Bot):
 	bot.add_cog(FunCommands(bot))
